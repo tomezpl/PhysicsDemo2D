@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29209.62
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PhysicsDemo2D", "PhysicsDemo2D.vcxproj", "{21116D2D-0935-4B98-9164-8EF998083DEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21116D2D-0935-4B98-9164-8EF998083DEA}.Debug|x64.ActiveCfg = Debug|x64
+		{21116D2D-0935-4B98-9164-8EF998083DEA}.Debug|x64.Build.0 = Debug|x64
+		{21116D2D-0935-4B98-9164-8EF998083DEA}.Debug|x86.ActiveCfg = Debug|Win32
+		{21116D2D-0935-4B98-9164-8EF998083DEA}.Debug|x86.Build.0 = Debug|Win32
+		{21116D2D-0935-4B98-9164-8EF998083DEA}.Release|x64.ActiveCfg = Release|x64
+		{21116D2D-0935-4B98-9164-8EF998083DEA}.Release|x64.Build.0 = Release|x64
+		{21116D2D-0935-4B98-9164-8EF998083DEA}.Release|x86.ActiveCfg = Release|Win32
+		{21116D2D-0935-4B98-9164-8EF998083DEA}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {09E3FC4A-E7C0-4330-8738-7D01B37E39E4}
+	EndGlobalSection
+EndGlobal
