@@ -30,7 +30,7 @@ int main()
 
 		al_clear_to_color(al_map_rgb(100, 149, 237));
 
-		al_draw_filled_circle(640, 360, 60, al_map_rgb(255, 0, 0));
+		al_draw_filled_rectangle(610, 330, 670, 390, al_map_rgb(255, 0, 0));
 
 		al_flip_display();
 	}
