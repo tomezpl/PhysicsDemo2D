@@ -26,10 +26,46 @@ public:
 	Vec2 normalised() { return *this / magnitude(); }
 };
 
+typedef Vec2 Point2d;
+
+class Rect
+{
+public:
+	// Vertical coordinates for top and bottom edges, and horizontal coordinates for left and right edges.
+	float top, left, bottom, right;
+
+	Rect(float Top, float Left, float Bottom, float Right) { top = Top; left = Left; bottom = Bottom; right = Right; }
+	Rect(Point2d topLeft = Point2d(), Point2d bottomRight = Point2d()) : Rect(topLeft.y, topLeft.x, bottomRight.y, bottomRight.x) { }
+
+	// Is a Point inside the rectangle's bounds?
+	bool inBounds(const Point2d& point)
+	{
+		return point.y >= top && point.x >= left && point.y <= bottom && point.x <= right;
+	}
+
+	inline Point2d topLeft() { return Point2d(left, top); }
+	inline Point2d topRight() { return Point2d(right, top); }
+	inline Point2d bottomLeft() { return Point2d(left, bottom); }
+	inline Point2d bottomRight() { return Point2d(right, bottom); }
+
+	// Is a Rect inside this Rect's bounds?
+	bool inBounds(const Rect& rect)
+	{
+		return inBounds(topLeft()) || inBounds(topRight()) || inBounds(bottomLeft()) || inBounds(bottomRight());
+	}
+};
+
+class RectCollider
+{
+public:
+	Rect bounds;
+	RectCollider(Rect Bounds = Rect()) { bounds = Bounds; }
+};
+
 class RBDynamic 
 {
 public:
-	RBDynamic(Vec2 Position = Vec2(), float Mass = 1.f) 
+	RBDynamic(Point2d Position = Point2d(), float Mass = 1.f) 
 	{
 		position = Position;
 		mass = Mass;
@@ -37,7 +73,7 @@ public:
 	}
 
 	// Centre of mass position
-	Vec2 position;
+	Point2d position;
 	float mass;
 	Vec2 velocity;
 
@@ -62,7 +98,7 @@ int main()
 	
 	ALLEGRO_EVENT* ev = new ALLEGRO_EVENT();
 
-	RBDynamic box = RBDynamic(Vec2(640.f, 360.f));
+	RBDynamic box = RBDynamic(Point2d(640.f, 360.f));
 	float boxSize = 60.f;
 	float boxHx = boxSize / 2.f; // Box half-extents
 
