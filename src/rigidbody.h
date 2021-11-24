@@ -23,17 +23,35 @@ public:
 	bool overlap;
 
 protected:
+	RectCollider* getRectCollider() 
+	{
+		return static_cast<RectCollider*>(collider);
+	}
+
 	void fall(float time)
 	{
-		velocity += Vec2(.0f, GRAVITY) * mass;
+		addForce(Vec2(.0f, GRAVITY) * mass);
+	}
 
-		position += velocity * time;
+	void airDrag()
+	{
+		// Calculate area (TODO: refactor for other colliders!)
+		RectCollider* collider = getRectCollider();
+		float area = (Vec2(collider->bounds.left - collider->bounds.right).magnitude() + Vec2(collider->bounds.top - collider->bounds.bottom).magnitude()) * .5f;
 
-		RectCollider* rectCollider = static_cast<RectCollider*>(collider);
-		rectCollider->bounds.top += velocity.y * time;
-		rectCollider->bounds.bottom += velocity.y * time;
-		rectCollider->bounds.left += velocity.x * time;
-		rectCollider->bounds.right += velocity.x * time;
+		const float cd = 0.1f;
+
+		// Calculate volume
+		const float length = 1.f;
+		float volume = Vec2(collider->bounds.left - collider->bounds.right).magnitude() * Vec2(collider->bounds.top - collider->bounds.bottom).magnitude() * length;
+		
+		// Calculate mass density
+		float massDensity = mass / volume;
+
+		// Calculate the drag force
+		float fD = .5f * massDensity * area * cd * powf(velocity.magnitude(), 2.f);
+
+		addForce(-velocity.normalised() * fD);
 	}
 
 	void resolveCollision(Collider& other)
@@ -46,20 +64,43 @@ protected:
 	}
 
 public:
-	void step(float time, Collider& other)
+	void step(double time, Collider* other)
 	{
 		// Apply gravity force.
-		fall(time);
-
-		if (collider->isColliding(&other))
+		if (!overlap) 
 		{
+			fall(time);
+		}
+
+		// Apply air resistance.
+		airDrag();
+
+		// Integrate velocity into position over time.
+		position += velocity * time;
+
+		// Update the collider.
+		// TODO: This needs to be refactored to support other colliders.
+		RectCollider* rectCollider = getRectCollider();
+		rectCollider->bounds.top += velocity.y * time;
+		rectCollider->bounds.bottom += velocity.y * time;
+		rectCollider->bounds.left += velocity.x * time;
+		rectCollider->bounds.right += velocity.x * time;
+
+		if (other != nullptr && collider->isColliding(other))
+		{
+			position -= velocity * time;
 			velocity = Vec2();
-			resolveCollision(other);
+			resolveCollision(*other);
 			overlap = true;
 		}
 		else
 		{
 			overlap = false;
 		}
+	}
+
+	void addForce(Vec2 force)
+	{
+		velocity += force / mass;
 	}
 };

@@ -2,6 +2,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
 #include <string>
+#include <iostream>
 
 #include "rigidbody.h"
 
@@ -26,6 +27,9 @@ int main()
 
 	bool isRunning = true;
 	float frameStartTime = al_get_time();
+
+	float runningTime = 0.f;
+
 	while (isRunning)
 	{
 		while (al_get_next_event(evQueue, ev))
@@ -40,16 +44,26 @@ int main()
 
 		al_clear_to_color(al_map_rgb(100, 149, 237));
 
-		box.step(al_get_time() - frameStartTime, platform);
+		float deltaTime = al_get_time() - frameStartTime;
+		runningTime += deltaTime;
+
+		std::cout << runningTime << std::endl;
+
+		//deltaTime *= 1000.f;
+
+		box.step(deltaTime, runningTime < 15.f ? &platform : nullptr);
 		ALLEGRO_COLOR boxColour = box.overlap ? al_map_rgb(255, 0, 0) : al_map_rgb(255, 128, 32);
 		RectCollider* boxRectCollider = static_cast<RectCollider*>(box.collider);
 		Rect boxRect = boxRectCollider->bounds;
 		al_draw_filled_rectangle(boxRect.left, boxRect.top, boxRect.right, boxRect.bottom, boxColour);
-		al_draw_filled_rectangle(platform.bounds.left, platform.bounds.top, platform.bounds.right, platform.bounds.bottom, al_map_rgb(0, 255, 0));
+		if (runningTime < 15.f) 
+		{
+			al_draw_filled_rectangle(platform.bounds.left, platform.bounds.top, platform.bounds.right, platform.bounds.bottom, al_map_rgb(0, 255, 0));
+		}
 
 		al_flip_display();
 
-		frameStartTime = al_get_time();
+		frameStartTime = runningTime;
 	}
 
 	al_shutdown_primitives_addon();
