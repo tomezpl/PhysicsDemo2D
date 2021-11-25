@@ -31,24 +31,12 @@ protected:
 
 	void fall(float time)
 	{
-		RectCollider* collider = getRectCollider();
 		Vec2 fG = Vec2(.0f, GRAVITY) * mass;
-		// Assume a Z dimension.
-		const float length = 1.f;
 
-		// Approx. air density.
-		const float airDensity = 1.2;
-
-		// TODO: This only works for a square that is falling straight down. Does not account for rotations or other shapes.
-		float crossSectionalArea = Vec2(collider->bounds.left - collider->bounds.right).magnitude() * length;
-
-		// Drag coefficient.
-		const float cd = 0.01f;
-
-		velocity = Vec2(.0f, sqrtf((2.f * fG.y) / (airDensity * crossSectionalArea * cd)));
+		addForce(fG - airDrag());
 	}
 
-	void airDrag()
+	Vec2 airDrag()
 	{
 		// Calculate area (TODO: refactor for other colliders!)
 		RectCollider* collider = getRectCollider();
@@ -60,7 +48,7 @@ protected:
 		float crossSectionalArea = Vec2(collider->bounds.left - collider->bounds.right).magnitude() * length;
 
 		// Drag coefficient.
-		const float cd = 0.7f;
+		const float cd = 0.003f;
 
 		// Calculate volume
 		float volume = Vec2(collider->bounds.left - collider->bounds.right).magnitude() * Vec2(collider->bounds.top - collider->bounds.bottom).magnitude() * length;
@@ -74,7 +62,7 @@ protected:
 		// Calculate the drag force
 		float fD = .5f * airDensity * crossSectionalArea * cd * powf(velocity.y, 2.f);
 
-		airDragForce = Vec2(0.f, fD);
+		return Vec2(0.f, fD);
 	}
 
 	void resolveCollision(Collider& other)
