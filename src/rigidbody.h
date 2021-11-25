@@ -11,6 +11,7 @@ public:
 		position = Position;
 		mass = Mass;
 		velocity = Vec2();
+		airDragForce = Vec2();
 		collider = Collider;
 		overlap = false;
 	}
@@ -18,7 +19,7 @@ public:
 	// Centre of mass position
 	Point2d position;
 	float mass;
-	Vec2 velocity;
+	Vec2 velocity, airDragForce;
 	Collider* collider;
 	bool overlap;
 
@@ -30,28 +31,50 @@ protected:
 
 	void fall(float time)
 	{
-		addForce(Vec2(.0f, GRAVITY) * mass);
+		RectCollider* collider = getRectCollider();
+		Vec2 fG = Vec2(.0f, GRAVITY) * mass;
+		// Assume a Z dimension.
+		const float length = 1.f;
+
+		// Approx. air density.
+		const float airDensity = 1.2;
+
+		// TODO: This only works for a square that is falling straight down. Does not account for rotations or other shapes.
+		float crossSectionalArea = Vec2(collider->bounds.left - collider->bounds.right).magnitude() * length;
+
+		// Drag coefficient.
+		const float cd = 0.01f;
+
+		velocity = Vec2(.0f, sqrtf((2.f * fG.y) / (airDensity * crossSectionalArea * cd)));
 	}
 
 	void airDrag()
 	{
 		// Calculate area (TODO: refactor for other colliders!)
 		RectCollider* collider = getRectCollider();
-		float area = (Vec2(collider->bounds.left - collider->bounds.right).magnitude() + Vec2(collider->bounds.top - collider->bounds.bottom).magnitude()) * .5f;
 
-		const float cd = 0.1f;
+		// Assume a Z dimension.
+		const float length = 1.f;
+
+		// TODO: This only works for a square that is falling straight down. Does not account for rotations or other shapes.
+		float crossSectionalArea = Vec2(collider->bounds.left - collider->bounds.right).magnitude() * length;
+
+		// Drag coefficient.
+		const float cd = 0.7f;
 
 		// Calculate volume
-		const float length = 1.f;
 		float volume = Vec2(collider->bounds.left - collider->bounds.right).magnitude() * Vec2(collider->bounds.top - collider->bounds.bottom).magnitude() * length;
 		
 		// Calculate mass density
 		float massDensity = mass / volume;
 
-		// Calculate the drag force
-		float fD = .5f * massDensity * area * cd * powf(velocity.magnitude(), 2.f);
+		// Approx. air density.
+		const float airDensity = 1.2;
 
-		addForce(-velocity.normalised() * fD);
+		// Calculate the drag force
+		float fD = .5f * airDensity * crossSectionalArea * cd * powf(velocity.y, 2.f);
+
+		airDragForce = Vec2(0.f, fD);
 	}
 
 	void resolveCollision(Collider& other)

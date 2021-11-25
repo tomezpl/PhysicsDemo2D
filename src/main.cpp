@@ -19,7 +19,7 @@ int main()
 	
 	ALLEGRO_EVENT* ev = new ALLEGRO_EVENT();
 
-	RBDynamic box = RBDynamic(Point2d(640.f, 360.f), 1.f, new RectCollider(Rect(330.f, 610.f, 390.f, 670.f)));
+	RBDynamic box = RBDynamic(Point2d(640.f, 360.f), 1000.f, new RectCollider(Rect(330.f, 610.f, 390.f, 670.f)));
 	float boxSize = 60.f;
 	float boxHx = boxSize / 2.f; // Box half-extents
 
