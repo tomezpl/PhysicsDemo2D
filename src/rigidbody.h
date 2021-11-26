@@ -84,9 +84,6 @@ public:
 			fall(time);
 		}
 
-		// Apply air resistance.
-		airDrag();
-
 		// Integrate velocity into position over time.
 		position += velocity * time;
 
