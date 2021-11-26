@@ -98,7 +98,14 @@ public:
 		if (other != nullptr && collider->isColliding(other))
 		{
 			position -= velocity * time;
-			velocity = Vec2();
+
+			// Prevent velocity from constantly zeroing - we only want to zero it on contact.
+			// TODO: Account for restitution.
+			if (!overlap) 
+			{
+				velocity = Vec2();
+			}
+
 			resolveCollision(*other);
 			overlap = true;
 		}
