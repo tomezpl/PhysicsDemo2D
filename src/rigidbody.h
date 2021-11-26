@@ -11,7 +11,6 @@ public:
 		position = Position;
 		mass = Mass;
 		velocity = Vec2();
-		airDragForce = Vec2();
 		collider = Collider;
 		overlap = false;
 	}
@@ -19,7 +18,7 @@ public:
 	// Centre of mass position
 	Point2d position;
 	float mass;
-	Vec2 velocity, airDragForce;
+	Vec2 velocity;
 	Collider* collider;
 	bool overlap;
 
@@ -33,7 +32,7 @@ protected:
 	{
 		Vec2 fG = Vec2(.0f, GRAVITY) * mass;
 
-		addForce(fG - airDrag());
+		addForce(fG);
 	}
 
 	Vec2 airDrag()
@@ -45,7 +44,8 @@ protected:
 		const float length = 1.f;
 
 		// TODO: This only works for a square that is falling straight down. Does not account for rotations or other shapes.
-		float crossSectionalArea = Vec2(collider->bounds.left - collider->bounds.right).magnitude() * length;
+		float crossSectionalAreaBottom = Vec2(collider->bounds.left - collider->bounds.right).magnitude() * length;
+		float crossSectionalAreaSide = Vec2(collider->bounds.top - collider->bounds.bottom).magnitude() * length;
 
 		// Drag coefficient.
 		const float cd = 0.003f;
@@ -60,9 +60,10 @@ protected:
 		const float airDensity = 1.2;
 
 		// Calculate the drag force
-		float fD = .5f * airDensity * crossSectionalArea * cd * powf(velocity.y, 2.f);
+		float dragY = .5f * airDensity * crossSectionalAreaBottom * cd * powf(velocity.y, 2.f);
+		float dragX = .5f * airDensity * crossSectionalAreaSide * cd * powf(velocity.x, 2.f);
 
-		return Vec2(0.f, fD);
+		return Vec2(dragX, dragY);
 	}
 
 	void resolveCollision(Collider& other)
@@ -112,6 +113,6 @@ public:
 
 	void addForce(Vec2 force)
 	{
-		velocity += force / mass;
+		velocity += (force - airDrag()) / mass;
 	}
 };
