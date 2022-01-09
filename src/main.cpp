@@ -47,10 +47,6 @@ int main()
 		float deltaTime = al_get_time() - frameStartTime;
 		runningTime += deltaTime;
 
-		std::cout << runningTime << std::endl;
-
-		//deltaTime *= 1000.f;
-
 		box.step(deltaTime, runningTime < 15.f ? &platform : nullptr);
 		ALLEGRO_COLOR boxColour = box.overlap ? al_map_rgb(255, 0, 0) : al_map_rgb(255, 128, 32);
 		RectCollider* boxRectCollider = static_cast<RectCollider*>(box.collider);
