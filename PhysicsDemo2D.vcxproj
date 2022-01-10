@@ -141,10 +141,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\collider.h" />
+    <ClInclude Include="src\constraint.h" />
     <ClInclude Include="src\physics.h" />
     <ClInclude Include="src\rect.h" />
     <ClInclude Include="src\rectcollider.h" />
     <ClInclude Include="src\rigidbody.h" />
+    <ClInclude Include="src\springconstraint.h" />
     <ClInclude Include="src\vec.h" />
   </ItemGroup>
   <ItemGroup>

@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "rigidbody.h"
+#include "springconstraint.h"
 
 int main()
 {
@@ -19,7 +20,11 @@ int main()
 	
 	ALLEGRO_EVENT* ev = new ALLEGRO_EVENT();
 
-	RBDynamic box = RBDynamic(Point2d(640.f, 360.f), 1000.f, new RectCollider(Rect(330.f, 610.f, 390.f, 670.f)));
+	RBDynamic box = RBDynamic(Point2d(640.f, 360.f), 1000.f, false, new RectCollider(Rect(0.f, 0.f, 60.f, 60.f)));
+	RBDynamic springRoot = RBDynamic(Point2d(640.f, 240.f), 1.f, true, new RectCollider(Rect(0.f, 0.f, 60.f, 60.f)));
+
+	SpringConstraint spring = SpringConstraint({ &springRoot, &box }, 300.f, 150.f);
+
 	float boxSize = 60.f;
 	float boxHx = boxSize / 2.f; // Box half-extents
 
@@ -47,14 +52,17 @@ int main()
 		float deltaTime = al_get_time() - frameStartTime;
 		runningTime += deltaTime;
 
-		box.step(deltaTime, runningTime < 15.f ? &platform : nullptr);
+		box.step(deltaTime, nullptr);
+		springRoot.step(deltaTime, nullptr);
+		spring.step(deltaTime);
 		ALLEGRO_COLOR boxColour = box.overlap ? al_map_rgb(255, 0, 0) : al_map_rgb(255, 128, 32);
-		RectCollider* boxRectCollider = static_cast<RectCollider*>(box.collider);
-		Rect boxRect = boxRectCollider->bounds;
+		RectCollider* boxRectCollider = reinterpret_cast<RectCollider*>(box.collider);
+		Rect boxRect = boxRectCollider->bounds, box2Rect = reinterpret_cast<RectCollider*>(springRoot.collider)->bounds;
 		al_draw_filled_rectangle(boxRect.left, boxRect.top, boxRect.right, boxRect.bottom, boxColour);
+		al_draw_filled_rectangle(box2Rect.left, box2Rect.top, box2Rect.right, box2Rect.bottom, boxColour);
 		if (runningTime < 15.f) 
 		{
-			al_draw_filled_rectangle(platform.bounds.left, platform.bounds.top, platform.bounds.right, platform.bounds.bottom, al_map_rgb(0, 255, 0));
+			//al_draw_filled_rectangle(platform.bounds.left, platform.bounds.top, platform.bounds.right, platform.bounds.bottom, al_map_rgb(0, 255, 0));
 		}
 
 		al_flip_display();

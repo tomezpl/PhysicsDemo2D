@@ -5,27 +5,31 @@
 
 class RBDynamic
 {
+	friend class SpringConstraint;
 public:
-	RBDynamic(Point2d Position = Point2d(), float Mass = 1.f, Collider* Collider = new RectCollider())
+	RBDynamic(Point2d Position = Point2d(), float Mass = 1.f, bool kinematic = false, Collider* Collider = new RectCollider())
 	{
 		position = Position;
 		mass = Mass;
 		velocity = Vec2();
-		collider = Collider;
+		localCollider = Collider;
+		collider = new RectCollider();
 		overlap = false;
+		isKinematic = kinematic;
 	}
 
 	// Centre of mass position
 	Point2d position;
 	float mass;
 	Vec2 velocity;
-	Collider* collider;
+	Collider* collider, *localCollider;
 	bool overlap;
+	bool isKinematic;
 
 protected:
 	RectCollider* getRectCollider() 
 	{
-		return static_cast<RectCollider*>(collider);
+		return reinterpret_cast<RectCollider*>(localCollider);
 	}
 
 	void fall(float time)
@@ -35,6 +39,20 @@ protected:
 		addForce(fG);
 	}
 
+	// Update the world-space collider.
+	void updateRectBounds()
+	{
+		// TODO: This needs to be refactored to support other colliders.
+		RectCollider* rectCollider = reinterpret_cast<RectCollider*>(collider);
+		Point2d hx = localCollider->getHalfExtents();
+
+		rectCollider->bounds.top = (position.y - hx.y);
+		rectCollider->bounds.bottom = (position.y + hx.y);
+		rectCollider->bounds.left = (position.x - hx.x);
+		rectCollider->bounds.right = (position.x + hx.x);
+	}
+
+public:
 	Vec2 airDrag()
 	{
 		// Calculate area (TODO: refactor for other colliders!)
@@ -66,6 +84,7 @@ protected:
 		return Vec2(dragX, dragY);
 	}
 
+protected:
 	void resolveCollision(Collider& other)
 	{
 		Point2d closestPoint = other.getClosestPoint(position);
@@ -87,13 +106,8 @@ public:
 		// Integrate velocity into position over time.
 		position += velocity * time;
 
-		// Update the collider.
-		// TODO: This needs to be refactored to support other colliders.
-		RectCollider* rectCollider = getRectCollider();
-		rectCollider->bounds.top += velocity.y * time;
-		rectCollider->bounds.bottom += velocity.y * time;
-		rectCollider->bounds.left += velocity.x * time;
-		rectCollider->bounds.right += velocity.x * time;
+		// Update the collider coords.
+		updateRectBounds();
 
 		if (other != nullptr && collider->isColliding(other))
 		{
@@ -117,6 +131,11 @@ public:
 
 	void addForce(Vec2 force)
 	{
+		if (isKinematic)
+		{
+			return;
+		}
+
 		velocity += (force - airDrag()) / mass;
 	}
 };

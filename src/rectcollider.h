@@ -11,7 +11,7 @@ public:
 
 	Point2d getHalfExtents()
 	{
-		return Point2d(((bounds.left + bounds.right) / 2.f) - bounds.left, ((bounds.top + bounds.bottom) / 2.f) - bounds.top);
+		return Point2d(((bounds.left + bounds.right) / 2.f), ((bounds.top + bounds.bottom) / 2.f));
 	}
 
 	Point2d getClosestPoint(Point2d& position)
@@ -52,7 +52,7 @@ public:
 
 	bool isColliding(Collider* collider)
 	{
-		RectCollider rectCollider = *static_cast<RectCollider*>(collider);
+		RectCollider rectCollider = *reinterpret_cast<RectCollider*>(collider);
 		return rectCollider.bounds.inBounds(bounds);
 	}
 };
