@@ -78,8 +78,8 @@ public:
 		const float airDensity = 1.2;
 
 		// Calculate the drag force
-		float dragY = .5f * airDensity * crossSectionalAreaBottom * cd * powf(velocity.y, 2.f);
-		float dragX = .5f * airDensity * crossSectionalAreaSide * cd * powf(velocity.x, 2.f);
+		float dragY = .5f * airDensity * crossSectionalAreaBottom * cd * powf(velocity.y, 2.f) * (std::signbit(velocity.y) ? -1.f : 1.f);
+		float dragX = .5f * airDensity * crossSectionalAreaSide * cd * powf(velocity.x, 2.f) * (std::signbit(velocity.x) ? -1.f : 1.f);
 
 		return Vec2(dragX, dragY);
 	}
@@ -129,13 +129,18 @@ public:
 		}
 	}
 
-	void addForce(Vec2 force)
+	void addForce(Vec2 force, bool ignoreDrag = false)
 	{
 		if (isKinematic)
 		{
 			return;
 		}
 
-		velocity += (force - airDrag()) / mass;
+		if (force.magnitude() < 0.000001f)
+		{
+			return;
+		}
+
+		velocity += (ignoreDrag ? force : force - airDrag()) / mass;
 	}
 };

@@ -5,8 +5,8 @@
 class Vec2
 {
 public:
-	float x, y;
-	Vec2(float X = .0f, float Y = .0f) { x = X; y = Y; }
+	double x, y;
+	Vec2(double X = .0, double Y = .0) { x = X; y = Y; }
 
 	Vec2 operator+(Vec2 rh) { return Vec2(x + rh.x, y + rh.y); }
 	Vec2 operator-() { return Vec2(-x, -y); }

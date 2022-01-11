@@ -54,7 +54,6 @@ int main()
 
 		box.step(deltaTime, nullptr);
 		springRoot.step(deltaTime, nullptr);
-		spring.step(deltaTime);
 		ALLEGRO_COLOR boxColour = box.overlap ? al_map_rgb(255, 0, 0) : al_map_rgb(255, 128, 32);
 		RectCollider* boxRectCollider = reinterpret_cast<RectCollider*>(box.collider);
 		Rect boxRect = boxRectCollider->bounds, box2Rect = reinterpret_cast<RectCollider*>(springRoot.collider)->bounds;
@@ -62,6 +61,7 @@ int main()
 		al_draw_filled_rectangle(box2Rect.left, box2Rect.top, box2Rect.right, box2Rect.bottom, boxColour);
 		if (runningTime < 15.f) 
 		{
+			spring.step(deltaTime);
 			//al_draw_filled_rectangle(platform.bounds.left, platform.bounds.top, platform.bounds.right, platform.bounds.bottom, al_map_rgb(0, 255, 0));
 		}
 
