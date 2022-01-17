@@ -7,7 +7,7 @@
 #include "rigidbody.h"
 #include "springconstraint.h"
 
-void drawCurve(RBDynamic &rb, float springLength = 150.f);
+void drawCurve(RBDynamic &rb, float springLength, std::vector<double*>& buffer, float runningTime);
 
 int main()
 {
@@ -36,6 +36,8 @@ int main()
 	float frameStartTime = al_get_time();
 
 	float runningTime = 0.f;
+
+	std::vector<double*> velocitySnapshots;
 
 	while (isRunning)
 	{
@@ -67,7 +69,7 @@ int main()
 			//al_draw_filled_rectangle(platform.bounds.left, platform.bounds.top, platform.bounds.right, platform.bounds.bottom, al_map_rgb(0, 255, 0));
 		}
 
-		drawCurve(box, spring.maxLength);
+		drawCurve(box, spring.maxLength, velocitySnapshots, runningTime);
 
 		al_flip_display();
 
@@ -80,8 +82,28 @@ int main()
 	return 0;
 }
 
-void drawCurve(RBDynamic &rb, float springLength)
+void drawCurve(RBDynamic &rb, float springLength, std::vector<double*>& buffer, float runningTime)
 {
+	const float timeWindowSize = 5.f;
+
+	double* newBufEntry = new double[2]{rb.velocity.y, runningTime};
+	buffer.push_back(newBufEntry);
+
+	// Shrink the buffer to the current time window.
+	int currentWindowStartIndex = 0;
+	int numBuffer = buffer.size();
+	for (int i = 0; i < numBuffer; i++)
+	{
+		currentWindowStartIndex = i;
+		// Check if the entry's timestamp is within the frame. If it is, it means the next entries are as well; we can stop the loop.
+		if (buffer[i][1] >= runningTime - timeWindowSize)
+		{
+			break;
+		}
+	}
+
+	buffer.assign(buffer.begin() + currentWindowStartIndex, buffer.end());
+
 	const float startX = 100.f, endX = 500.f;
 	const float startY = 500.f, endY = 650.f;
 
@@ -91,8 +113,13 @@ void drawCurve(RBDynamic &rb, float springLength)
 	al_draw_rectangle(startX, startY, endX, endY, al_map_rgb(0, 0, 0), 3.f);
 	al_draw_line(startX, midY, endX, midY, al_map_rgb(0, 0, 0), 1.f);
 
-	float normalizedAmplitude = rb.velocity.y / springLength;
+	numBuffer = buffer.size();
+	for (int i = 0; i < numBuffer; i++)
+	{
+		float normalizedAmplitude = buffer[i][0] / springLength;
+		float normalizedTimestamp = (i == numBuffer - 1 ? 1.f : 1.f - (runningTime - buffer[i][1]) / timeWindowSize);
 
-	// Show point in center middle of axis showing current velocity
-	al_draw_filled_circle(midX, midY + (endY - startY) * normalizedAmplitude * 0.5f, 3.f, al_map_rgb(255, 255, 255));
+		// Show point in center middle of axis showing current velocity
+		al_draw_filled_circle(startX + (endX - startX) * normalizedTimestamp, midY + (endY - startY) * normalizedAmplitude * 0.5f, 2.f, al_map_rgb(255, 255, 255));
+	}
 }
