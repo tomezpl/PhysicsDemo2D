@@ -25,7 +25,7 @@ int main()
 	RBDynamic box = RBDynamic(Point2d(640.f, 360.f), 1000.f, false, new RectCollider(Rect(0.f, 0.f, 60.f, 60.f)));
 	RBDynamic springRoot = RBDynamic(Point2d(640.f, 240.f), 1.f, true, new RectCollider(Rect(0.f, 0.f, 60.f, 60.f)));
 
-	SpringConstraint spring = SpringConstraint({ &springRoot, &box }, 300.f, 150.f);
+	SpringConstraint spring = SpringConstraint({ &springRoot, &box }, 300.f, 150.f, 14000.f, 800.f);
 
 	float boxSize = 60.f;
 	float boxHx = boxSize / 2.f; // Box half-extents
