@@ -7,6 +7,8 @@
 #include "rigidbody.h"
 #include "springconstraint.h"
 
+void drawCurve(RBDynamic &rb, float springLength = 150.f);
+
 int main()
 {
 	al_init();
@@ -65,6 +67,8 @@ int main()
 			//al_draw_filled_rectangle(platform.bounds.left, platform.bounds.top, platform.bounds.right, platform.bounds.bottom, al_map_rgb(0, 255, 0));
 		}
 
+		drawCurve(box, spring.maxLength);
+
 		al_flip_display();
 
 		frameStartTime = runningTime;
@@ -74,4 +78,21 @@ int main()
 	al_destroy_display(window);
 
 	return 0;
+}
+
+void drawCurve(RBDynamic &rb, float springLength)
+{
+	const float startX = 100.f, endX = 500.f;
+	const float startY = 500.f, endY = 650.f;
+
+	const float midY = (startY + endY) / 2.f, midX = (startX + endX) / 2.f;
+
+	// Draw border & axis
+	al_draw_rectangle(startX, startY, endX, endY, al_map_rgb(0, 0, 0), 3.f);
+	al_draw_line(startX, midY, endX, midY, al_map_rgb(0, 0, 0), 1.f);
+
+	float normalizedAmplitude = rb.velocity.y / springLength;
+
+	// Show point in center middle of axis showing current velocity
+	al_draw_filled_circle(midX, midY + (endY - startY) * normalizedAmplitude * 0.5f, 3.f, al_map_rgb(255, 255, 255));
 }
