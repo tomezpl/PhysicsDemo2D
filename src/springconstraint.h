@@ -45,7 +45,7 @@ public:
 
 		Vec2 dampingForce = getDampingVelocity(time);
 
-		//attachedBodies[1]->velocity = dampingForce;
+		attachedBodies[1]->velocity = dampingForce;
 
 		if (distBetweenBodies > maxLength)
 		{
